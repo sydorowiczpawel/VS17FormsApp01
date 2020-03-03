@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace VS17FormsApp01
 {
@@ -23,31 +20,62 @@ namespace VS17FormsApp01
             _soldiersForm showSoldiers = new _soldiersForm(this);
             showSoldiers.ShowDialog();
         }
-
         public List<Soldier> soldiersList = new List<Soldier>();
 
         public void addSoldierToBase()
         {
+            Soldier soldier = new Soldier();
+
+            soldier.Name = _soldierNameBox.Text;
+            soldier.Surname = _soldierSurnameBox.Text;
+            soldier.Fathers_name = _fatherNameBox.Text;
+            soldier.Rank = (_rankComboBox.SelectedItem).ToString();
+            soldier.Position = (_positionComboBox.SelectedItem).ToString();
+            soldier.Platoon = (_platoonComboBox.SelectedItem).ToString();
+            soldier.Born = _birthBox.Text;
+            soldier.Serve_since = _serviceBox.Text;
 
             soldiersList.Add(new Soldier()
             {
-                name = _soldierNameBox.Text,
-                surname = _soldierSurnameBox.Text,
-                fathers_name = _fatherNameBox.Text,
-                rank = (_rankComboBox.SelectedItem).ToString(),
-                position = (_positionComboBox.SelectedItem).ToString(),
-                platoon = (_platoonComboBox.SelectedItem).ToString(),
-                born = _birthBox.Text,
-                serve_since = _serviceBox.Text
+                Name = _soldierNameBox.Text,
+                Surname = _soldierSurnameBox.Text,
+                Fathers_name = _fatherNameBox.Text,
+                Rank = (_rankComboBox.SelectedItem).ToString(),
+                Position = (_positionComboBox.SelectedItem).ToString(),
+                Platoon = (_platoonComboBox.SelectedItem).ToString(),
+                Born = _birthBox.Text,
+                Serve_since = _serviceBox.Text
+            });
+
+            // Serialize the object data to a file
+            Stream str = File.Open("soldier.dat", FileMode.Open);
+            BinaryFormatter bf = new BinaryFormatter();
+
+            // Send the object data to the file
+            bf.Serialize(str, soldier);
+            str.Close();
+
+            XmlSerializer srl = new XmlSerializer(typeof(Soldier));
+            using (TextWriter tw = new StreamWriter("soldier.xml"))
+            {
+                srl.Serialize(tw, soldier);
             }
-            );
+
+            XmlSerializer srl2 = new XmlSerializer(typeof(List<Soldier>));
+            using (FileStream fs = new FileStream("soldiers.xml", FileMode.Open, FileAccess.Write))
+            {
+                srl2.Serialize(fs, soldiersList);
+            }
+            
+            
+            soldier = null;
         }
-        
+
         private void _mainForm_Load(object sender, EventArgs e)
         {
 
         }
-        
+
         private void _showTanks_Click(object sender, EventArgs e)
         {
             _tanksForm _tanks = new _tanksForm(this);
@@ -66,7 +94,7 @@ namespace VS17FormsApp01
             }
             );
         }
-        
+
         private void label2_Click(object sender, EventArgs e)
         {
 
@@ -94,18 +122,18 @@ namespace VS17FormsApp01
         {
 
         }
-        
+
         public List<Docs> docsList = new List<Docs>();
 
         public void addDocToBase()
         {
             docsList.Add(new Docs()
             {
-                serial  =   (_docSerialCbox.SelectedItem).ToString(),
-                number  =   _docNumberBox.Text,
-                km      =   _docKmBox.Text,
-                mtgOg   =   _docMtgOgBox.Text,
-                mtgObc  =   _docMtgObcBox.Text
+                serial = (_docSerialCbox.SelectedItem).ToString(),
+                number = _docNumberBox.Text,
+                km = _docKmBox.Text,
+                mtgOg = _docMtgOgBox.Text,
+                mtgObc = _docMtgObcBox.Text
             });
         }
 
@@ -159,8 +187,8 @@ namespace VS17FormsApp01
             }
             else
             {
-            addSoldierToBase();
-            MessageBox.Show("Soldier successfully added", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                addSoldierToBase();
+                MessageBox.Show("Soldier successfully added", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
         private void _showDocButton_Click(object sender, EventArgs e)

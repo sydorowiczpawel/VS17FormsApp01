@@ -1,4 +1,7 @@
 ﻿namespace VS17FormsApp01
+
+    //Pierwsza opcja klasy reprezentującej dokumenty
+
 {
     public class Docs
     {
